@@ -1,0 +1,6 @@
+//! Factory Implementation
+
+class Factory
+{
+
+};
