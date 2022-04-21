@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cmath>
 #include <iostream>
+#include <cassert>
 class CartesianPoint
 {
 
@@ -70,6 +71,8 @@ public:
 	Shape(const uint8_t numOfPoints);
 	virtual ~Shape();
 	virtual double GetArea() const = 0;
+	
+	bool AddPoint(const std::pair<double,double>& pt);
 
 protected:
 
@@ -88,28 +91,51 @@ Shape::Shape(const uint8_t numOfPoints):pointsNum(numOfPoints)
 	}
 }
 
-
 Shape::~Shape()
 {
 	for(uint8_t i=0;i<pointsNum;i++)
 	{
-		if(points[i])
-			delete points[i];
+		delete points[i];
 	}
+	delete[] points;
 }
 
+bool Shape::AddPoint(const std::pair<double,double>& pt)
+{
+	uint8_t i=0;
+	while(i<pointsNum)
+	{
+		if(!points[i])
+		{
+			points[i] = new CartesianPoint(pt);
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
 
 //! Triangle
 class TriangleShape : public Shape
 {
 public:
-	TriangleShape(const std::pair<double,double>& p0,const std::pair<double,double>& p1,const std::pair<double,double>& p2);
+	TriangleShape();
+	TriangleShape(const std::pair<double,double>& p0,
+				  const std::pair<double,double>& p1,
+				  const std::pair<double,double>& p2);
+
 	virtual double GetArea() const override;
 private:
 
 };
 
-TriangleShape::TriangleShape(const std::pair<double,double>& p0,const std::pair<double,double>& p1,const std::pair<double,double>& p2):Shape(3)
+TriangleShape::TriangleShape()
+	:Shape(3)
+{}
+
+TriangleShape::TriangleShape(const std::pair<double,double>& p0,
+							 const std::pair<double,double>& p1,
+							 const std::pair<double,double>& p2) :Shape(3)
 {
 	points[0] = new CartesianPoint(p0);
 	points[1] = new CartesianPoint(p1);
@@ -127,15 +153,26 @@ double TriangleShape::GetArea() const
 class QuadrilateralShape : public Shape
 {
 public:
-	QuadrilateralShape(	const std::pair<double,double>& p0,const std::pair<double,double>& p1,
-					const std::pair<double,double>& p2,const std::pair<double,double>& p3);
+	QuadrilateralShape();
+
+	QuadrilateralShape(const std::pair<double,double>& p0,
+					   const std::pair<double,double>& p1,
+					   const std::pair<double,double>& p2,
+					   const std::pair<double,double>& p3);
+
 	virtual double GetArea() const override;
 private:
 
 };
 
-QuadrilateralShape::QuadrilateralShape(const std::pair<double,double>& p0,const std::pair<double,double>& p1,
-							  const std::pair<double,double>& p2,const std::pair<double,double>& p3) :Shape(4)
+QuadrilateralShape::QuadrilateralShape()
+	:Shape(4)
+{}
+
+QuadrilateralShape::QuadrilateralShape(const std::pair<double,double>& p0,
+									   const std::pair<double,double>& p1,
+							  		   const std::pair<double,double>& p2,
+									   const std::pair<double,double>& p3) :Shape(4)
 {
 	points[0] = new CartesianPoint(p0);
 	points[1] = new CartesianPoint(p1);
@@ -149,4 +186,34 @@ double QuadrilateralShape::GetArea() const
 				(points[1]->GetX()*points[2]->GetY()-points[1]->GetY()*points[2]->GetX())+
 				(points[2]->GetX()*points[3]->GetY()-points[2]->GetY()*points[3]->GetX())+
 				(points[3]->GetX()*points[0]->GetY()-points[3]->GetY()*points[0]->GetX()))/2.0;
+}
+
+//! ShapeFactory
+class ShapeFactory
+{
+	public:
+	enum ShapeType
+	{
+		TRIANGLE,
+		QUADRILATERAL
+	};
+
+	ShapeFactory() = default;
+
+	Shape* GetShape(const ShapeType& s) const;
+};
+
+
+Shape* ShapeFactory::GetShape(const ShapeType& s) const 
+{
+	switch (s)
+	{
+		case TRIANGLE:
+			return new TriangleShape();
+		case QUADRILATERAL:
+			return new QuadrilateralShape();
+		default:
+			assert(0);
+	}
+	return nullptr;
 }
