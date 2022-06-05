@@ -66,6 +66,8 @@ int main(void)
     
     myMachine.Attach(observer);
     myMachine.SetState(StateMachine::RUNNING);
+    myMachine.SetState(StateMachine::IDLE);
+    myMachine.SetState(StateMachine::COMPLETED);
 
 
 }
