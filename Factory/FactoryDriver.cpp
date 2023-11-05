@@ -8,4 +8,7 @@ int main(void)
 	Shape* quadrilateral = new QuadrilateralShape({2,2},{4,10},{9,7},{11,2});
 	cout<<"Triangle Area \t\t= "      <<triangle->GetArea()<<std::endl;
 	cout<<"Quadrilateral Area \t= "   <<quadrilateral->GetArea()<<std::endl;
+
+	delete triangle;
+	delete quadrilateral;
 }
